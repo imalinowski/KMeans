@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Cyan
 import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.Magenta
@@ -29,24 +30,26 @@ val K = mutableIntStateOf(MIN_K)
 
 object KMeans {
 
-    val colors = listOf(Magenta, Cyan, Yellow, Green, Red)
+    private val colors = listOf(Magenta, Cyan, Yellow, Green, Red)
 
     private val centers = mutableStateOf(
         emptyList<Point>()
     )
 
-    private var clusters = mutableMapOf<Point, MutableList<Point>>()
+    private var clusters = mutableMapOf<Point, MutableSet<Point>>()
 
     fun setK(k: Int, width: Float, height: Float) {
         val newCenters = mutableListOf<Point>()
         for (i in 0..<max(MIN_K, min(k, colors.size))) {
             newCenters.add(
                 Point(
-                    x = width * 0.25f + nextFloat() * width / 2,
-                    y = height * 0.25f + nextFloat() * height / 2
+                    x = nextFloat() * width,
+                    y = nextFloat() * height,
+                    color = colors[i]
                 )
             )
         }
+        Log.i("RASPBERRY", "$newCenters")
         centers.value = newCenters
     }
 
@@ -73,14 +76,13 @@ object KMeans {
     private fun calcClusters() {
         clusters = mutableMapOf()
         centers.value.forEach {
-            clusters[it] = mutableListOf()
+            clusters[it] = mutableSetOf()
         }
 
         PointsManager.getPoints().forEach { point ->
             val closestCenter = getClosestCenter(point)
             addPointToCluster(closestCenter, point)
         }
-        Log.i("RASPBERRY", "cluster : $clusters")
     }
 
     private fun calcNewCenters(): List<Point> {
@@ -92,6 +94,7 @@ object KMeans {
                 Point(
                     x = meanOf(points.map { it.x }),
                     y = meanOf(points.map { it.y }),
+                    color = center.color
                 )
             }
             newCenters.add(newCenter)
@@ -107,7 +110,7 @@ object KMeans {
     }
 
     private fun addPointToCluster(center: Point, point: Point) {
-        val cluster = clusters[center] ?: mutableListOf()
+        val cluster = clusters[center] ?: mutableSetOf()
         cluster.add(point)
         clusters[center] = cluster
     }
@@ -122,14 +125,23 @@ object KMeans {
         if (values.isEmpty()) return 0f
         return values.sum() / values.size
     }
+
+    fun getPointColorViaCluster(point: Point): Color {
+        clusters.forEach { (center, points) ->
+            if (points.contains(point)) {
+                return center.color
+            }
+        }
+        return Magenta
+    }
 }
 
 @Composable
 fun DrawCenters(modifier: Modifier = Modifier) {
     Canvas(modifier) {
-        KMeans.getCenters().forEachIndexed { index, point ->
+        KMeans.getCenters().forEach { point ->
             drawRect(
-                KMeans.colors[index],
+                color = point.color,
                 topLeft = Offset(point.x, point.y),
                 size = Size(30f, 30f)
             )

@@ -1,3 +1,5 @@
 package com.example.kmeans.data
 
-data class Point(val x: Float, val y: Float)
+import androidx.compose.ui.graphics.Color
+
+data class Point(val x: Float, val y: Float, val color: Color = Color.Magenta)

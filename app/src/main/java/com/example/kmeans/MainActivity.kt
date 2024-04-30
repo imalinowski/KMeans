@@ -13,7 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,9 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.example.kmeans.algo.DrawCenters
 import com.example.kmeans.algo.K
 import com.example.kmeans.algo.KMeans
-import com.example.kmeans.algo.MIN_K
 import com.example.kmeans.ui.theme.KMeansTheme
-import kotlin.jvm.Throws
 
 var screenHeight = 1000f
 var screenWidth = 1000f
@@ -96,12 +94,16 @@ fun TopText(name: String, modifier: Modifier = Modifier) {
 
 @Composable
 fun KInputFieldValue(modifier: Modifier = Modifier) {
+
+    val text = remember { mutableStateOf("${K.intValue}") }
+
     TextField(
         modifier = modifier,
         label = { Text("clusters K : ") },
-        value = "${K.intValue}",
+        value = text.value,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         onValueChange = { k ->
+            text.value = k
             try {
                 K.intValue = k.toInt()
                 KMeans.setK(k.toInt(), screenWidth, screenHeight)

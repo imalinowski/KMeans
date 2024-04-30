@@ -9,7 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import com.example.kmeans.algo.K
 import com.example.kmeans.algo.KMeans
@@ -51,8 +50,12 @@ fun Modifier.setPointerManger(): Modifier {
 fun DrawPoints(modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
     Canvas(modifier) {
-        for (point in PointsManager.getPoints()) {
-            drawCircle(Color.Magenta, radius = 10f, center = Offset(point.x, point.y))
+        PointsManager.getPoints().forEach { point ->
+            drawCircle(
+                color = KMeans.getPointColorViaCluster(point),
+                radius = 10f,
+                center = Offset(point.x, point.y)
+            )
         }
         coroutineScope.launch {
             KMeans.launchAlgo()
