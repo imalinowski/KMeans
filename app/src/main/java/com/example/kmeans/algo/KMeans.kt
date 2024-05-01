@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color.Companion.Magenta
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Yellow
 import com.example.kmeans.PointsManager
+import com.example.kmeans.algo.KMeans.setRandomCenters
 import com.example.kmeans.data.Point
 import com.example.kmeans.screenHeight
 import com.example.kmeans.screenWidth
@@ -44,7 +45,26 @@ object KMeans {
 
     private var clusters = mutableMapOf<Point, MutableSet<Point>>()
 
-    fun setK(k: Int, width: Float, height: Float) {
+    fun getCenters() = centers.value
+
+    fun clearCenters() {
+        centers.value = emptyList()
+    }
+
+    suspend fun launchAlgo() {
+        setRandomCenters(K.value, screenWidth, screenHeight)
+        while (true) {
+            delay(1000)
+            calcClusters()
+            val newCenters = calcNewCenters()
+            if (centers.value == newCenters) {
+                break
+            }
+            centers.value = newCenters
+        }
+    }
+
+    private fun setRandomCenters(k: Int, width: Float, height: Float) {
         val newCenters = mutableListOf<Point>()
         for (i in 0..<max(MIN_K, min(k, colors.size))) {
             newCenters.add(
@@ -57,26 +77,6 @@ object KMeans {
         }
         Log.i("RASPBERRY", "$newCenters")
         centers.value = newCenters
-    }
-
-    fun getCenters() = centers.value
-
-    fun clearCenters() {
-        centers.value = emptyList()
-    }
-
-    suspend fun launchAlgo() {
-        delay(1000)
-        if (centers.value.isEmpty()) {
-            return
-        }
-        calcClusters()
-        val newCenters = calcNewCenters()
-
-        if (centers.value != newCenters) {
-            centers.value = newCenters
-            launchAlgo()
-        }
     }
 
     private fun calcClusters() {
@@ -160,7 +160,6 @@ fun LaunchAlgoButton(modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
     Button(onClick = {
         coroutineScope.launch {
-            KMeans.setK(K.value, screenWidth, screenHeight)
             KMeans.launchAlgo()
         }
     }) {
