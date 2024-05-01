@@ -22,9 +22,6 @@ object PointsManager {
     )
 
     fun newPoint(x: Float, y: Float) {
-        if (points.value.size == 1) {
-            KMeans.setK(K.intValue, screenWidth, screenHeight)
-        }
         points.value += listOf(Point(x, y))
     }
 
@@ -48,7 +45,6 @@ fun Modifier.setPointerManger(): Modifier {
 
 @Composable
 fun DrawPoints(modifier: Modifier = Modifier) {
-    val coroutineScope = rememberCoroutineScope()
     Canvas(modifier) {
         PointsManager.getPoints().forEach { point ->
             drawCircle(
@@ -56,9 +52,6 @@ fun DrawPoints(modifier: Modifier = Modifier) {
                 radius = 10f,
                 center = Offset(point.x, point.y)
             )
-        }
-        coroutineScope.launch {
-            KMeans.launchAlgo()
         }
     }
 }

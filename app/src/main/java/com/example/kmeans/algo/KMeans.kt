@@ -2,9 +2,12 @@ package com.example.kmeans.algo
 
 import android.util.Log
 import androidx.compose.foundation.Canvas
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -16,7 +19,10 @@ import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Yellow
 import com.example.kmeans.PointsManager
 import com.example.kmeans.data.Point
+import com.example.kmeans.screenHeight
+import com.example.kmeans.screenWidth
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -146,5 +152,21 @@ fun DrawCenters(modifier: Modifier = Modifier) {
                 size = Size(30f, 30f)
             )
         }
+    }
+}
+
+@Composable
+fun LaunchAlgoButton(modifier: Modifier = Modifier) {
+    val coroutineScope = rememberCoroutineScope()
+    Button(onClick = {
+        coroutineScope.launch {
+            KMeans.setK(K.value, screenWidth, screenHeight)
+            KMeans.launchAlgo()
+        }
+    }) {
+        Text(
+            text = "Launch KMeans",
+            modifier = modifier
+        )
     }
 }

@@ -18,16 +18,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.kmeans.algo.DrawCenters
 import com.example.kmeans.algo.K
-import com.example.kmeans.algo.KMeans
+import com.example.kmeans.algo.LaunchAlgoButton
+import com.example.kmeans.ext.toPx
 import com.example.kmeans.ui.theme.KMeansTheme
 
-var screenHeight = 1000f
-var screenWidth = 1000f
+var screenHeight = 0f
+var screenWidth = 0f
 
 class MainActivity : ComponentActivity() {
 
@@ -56,9 +58,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun initKMeans() {
+    val context = LocalContext.current
     val configuration = LocalConfiguration.current
-    screenHeight = configuration.screenHeightDp.dp.value
-    screenWidth = configuration.screenWidthDp.dp.value
+    screenHeight = context.toPx(configuration.screenHeightDp.dp.value)
+    screenWidth = context.toPx(configuration.screenWidthDp.dp.value)
 }
 
 @Composable
@@ -81,6 +84,7 @@ fun BottomContent(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.Bottom
     ) {
         ClearPointsButton()
+        LaunchAlgoButton()
     }
 }
 
@@ -106,7 +110,6 @@ fun KInputFieldValue(modifier: Modifier = Modifier) {
             text.value = k
             try {
                 K.intValue = k.toInt()
-                KMeans.setK(k.toInt(), screenWidth, screenHeight)
             } catch (_: Throwable) { }
         },
     )
